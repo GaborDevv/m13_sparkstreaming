@@ -23,7 +23,17 @@ sourceFileFormat = 'parquet'
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC Spark config to infer the schema of the files
+
+# COMMAND ----------
+
 spark.sql("set spark.sql.streaming.schemaInference=true")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC read stream of data (Do I need to make more configurations?)
 
 # COMMAND ----------
 
@@ -34,7 +44,17 @@ hotel_df = spark.readStream.format(sourceFileFormat) \
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC Adding column called Timestamp and casting weather_date col to Date type 
+
+# COMMAND ----------
+
 hotel_df = hotel_df.withColumn("wthr_date", col("wthr_date").cast(DateType())).withColumn("TimeStamp", current_date())
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC creating aggregated hotel data: in every city on each day: number of hotels and the corresponding weather data(average, minimum, maximum)
 
 # COMMAND ----------
 
@@ -48,11 +68,17 @@ aggregated_hotel_df = aggregated_hotel_df.withColumn("TimeStamp", current_timest
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC Creating helper table which finds the top 10 biggest cities(giving home to most hotels)
+
+# COMMAND ----------
+
 top_ten_df = hotel_df.groupBy("city").agg(approxCountDistinct("id").alias("distinct_hotels")).orderBy(col("distinct_hotels").desc()).limit(10).drop("distinct_hotels")
 
 # COMMAND ----------
 
-display(top_ten_df)
+# MAGIC %md
+# MAGIC Creating query for joining and this way filtering aggregated hotel data(join it with the top 10 cities)
 
 # COMMAND ----------
 
@@ -66,13 +92,18 @@ top_query = (
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC create temprorary view tables
+
+# COMMAND ----------
+
 aggregated_hotel_df.createOrReplaceTempView("hotel_data")
 top_ten_df.createOrReplaceTempView("top_ten")
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC SELECT * FROM hotel_data
+# MAGIC %md
+# MAGIC making the aforementioned join
 
 # COMMAND ----------
 
@@ -81,20 +112,25 @@ top_ten_df.createOrReplaceTempView("top_ten")
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC Saving the result of the query to a dataframe
+
+# COMMAND ----------
+
 df = _sqldf
-df.createOrReplaceTempView("dataview")
 
 # COMMAND ----------
 
-display(df)
+# MAGIC %md
+# MAGIC Create a list of the top 10 cities to make iterative query possible
 
 # COMMAND ----------
 
-lists = []
+temp_list = []
 def process_batch(batch_df, batch_id):
     # Collect data from the current micro-batch and append it to the list
     snapshot = batch_df.select("city").collect()
-    lists.append(snapshot)
+    temp_list.append(snapshot)
 query = (
     top_ten_df
     .writeStream
@@ -105,7 +141,9 @@ query = (
 
 # COMMAND ----------
 
-print(city_names)
+# MAGIC %md
+# MAGIC displaying and visualizing frames one-by-one because otherwise display overwrites the table and only one is displayed at a time
+# MAGIC
 
 # COMMAND ----------
 
