@@ -1,6 +1,6 @@
 variable "ENV" {
   type = string
-  default = rgabordata
+  default = "rgabordata"
   description = "The prefix which should be used for all resources in this environment. Make it unique, like ksultanau."
 }
 
@@ -35,5 +35,5 @@ variable "IP_RULES" {
 
 variable "databricks_token" {
   description = "Databricks personal access token"
-  default = "dapi26f2b2eb8b8a00cddfe0f2c6397b1c49-3"
+  default = "dapid7581eeecea955e843257c0da43edd88-2"
 }
