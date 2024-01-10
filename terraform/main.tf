@@ -1,11 +1,11 @@
 # Setup azurerm as a state backend
 terraform {
   backend "azurerm" {
-	resource_group_name   = "spark-basics"
-    	storage_account_name  = "gaborsstorage"
-    	container_name        = "new"
+	resource_group_name   = "test"
+    	storage_account_name  = "teststorage5596"
+    	container_name        = "blob"
     	key                   = "prod.terraform.tfstate"
-	access_key 	      ="32Dmym0hdFxTYgwvHK5M2AsapmfkYrPe3JQpRXwMEhz5dHe73kyuOusVoyzXhO7dH4WraEZjenYo+AStnenrgA=="
+	access_key 	      ="VieQr0X95rhL71qypiuum61tl8XvujTv8x+1reoVficTpMnT8FMx39At4xqywcwTosieop29HeCN+AStntDcdw=="
 	}
 }
 
@@ -14,6 +14,7 @@ terraform {
 provider "azurerm" {
   features {}
 }
+
 
 data "azurerm_client_config" "current" {}
 
