@@ -18,3 +18,8 @@
 - Check StreamingApp.html in main folder
 
 
+- Physical plan of queries
+![image](https://github.com/GaborDevv/m13_sparkstreaming/assets/147967502/4317cf72-a2a4-44ba-b6c9-9d963be61746)
+
+![image](https://github.com/GaborDevv/m13_sparkstreaming/assets/147967502/499fcb5f-a6ad-4c81-a203-74283364a35d)
+
