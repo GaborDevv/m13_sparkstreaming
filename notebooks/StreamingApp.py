@@ -63,6 +63,15 @@ aggregated_hotel_df = hotel_df.groupBy("city",  "wthr_date").agg(
     avg("avg_tmpr_c").alias("average_temperature_in_c"),
     max("avg_tmpr_c").alias("max_temperature_in_c"),
     min("avg_tmpr_c").alias("min_temperature_in_c")
+).explain()
+
+# COMMAND ----------
+
+aggregated_hotel_df = hotel_df.groupBy("city",  "wthr_date").agg(
+    approxCountDistinct("id").alias("distinct_hotel_ids"),
+    avg("avg_tmpr_c").alias("average_temperature_in_c"),
+    max("avg_tmpr_c").alias("max_temperature_in_c"),
+    min("avg_tmpr_c").alias("min_temperature_in_c")
 )
 aggregated_hotel_df = aggregated_hotel_df.withColumn("TimeStamp", current_timestamp()).withWatermark("TimeStamp", "1 minute")
 
@@ -70,6 +79,10 @@ aggregated_hotel_df = aggregated_hotel_df.withColumn("TimeStamp", current_timest
 
 # MAGIC %md
 # MAGIC Creating helper table which finds the top 10 biggest cities(giving home to most hotels)
+
+# COMMAND ----------
+
+top_ten_df = hotel_df.groupBy("city").agg(approxCountDistinct("id").alias("distinct_hotels")).orderBy(col("distinct_hotels").desc()).limit(10).drop("distinct_hotels").explain()
 
 # COMMAND ----------
 
@@ -108,6 +121,11 @@ top_ten_df.createOrReplaceTempView("top_ten")
 # COMMAND ----------
 
 # MAGIC %sql
+# MAGIC EXPLAIN SELECT h.wthr_date, h.distinct_hotel_ids, h.average_temperature_in_c, h.max_temperature_in_c, h.min_temperature_in_c, t.city FROM top_ten_stream t JOIN hotel_data h ON t.city = h.city
+
+# COMMAND ----------
+
+# MAGIC %sql
 # MAGIC SELECT h.wthr_date, h.distinct_hotel_ids, h.average_temperature_in_c, h.max_temperature_in_c, h.min_temperature_in_c, t.city FROM top_ten_stream t JOIN hotel_data h ON t.city = h.city
 
 # COMMAND ----------
@@ -142,18 +160,52 @@ query = (
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC sleep decorator function that will asssist with the creation of city names list by checking if its created every 20 seconds 
+
+# COMMAND ----------
+
+import time
+def sleep(timeout, retry):
+    def decorator(function):
+        def wrapper(*args, **kwargs):
+            retries = 0
+            while retries < retry:
+                try:
+                    value = function(*args, **kwargs)
+                    if value is None:
+                        return
+                except:
+                    print(f'Sleeping for {timeout} seconds')
+                    time.sleep(timeout)
+                    retries += 1
+        return wrapper
+    return decorator
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC displaying and visualizing frames one-by-one because otherwise display overwrites the table and only one is displayed at a time
 # MAGIC
 
 # COMMAND ----------
 
-city_names = [row.city for row in lists[0]]
+@sleep(20, 30)
+def create_list():
+    try:
+        city_names = [row.city for row in temp_list[0]]
+        
+        for city in city_names:
+            # Filter the DataFrame for the current city
+            df_city = df.filter(col("city") == city)
+            # Display the chart for the current city
+            city_dataframes.append(df_city)
+    except Exception as e:
+        raise e
 city_dataframes = []
-for city in city_names:
-    # Filter the DataFrame for the current city
-    df_city = df.filter(col("city") == city)
-    # Display the chart for the current city
-    city_dataframes.append(df_city)
+create_list()
+
+# COMMAND ----------
+
 display(city_dataframes[0])
 
 # COMMAND ----------
