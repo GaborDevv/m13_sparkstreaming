@@ -121,11 +121,6 @@ top_ten_df.createOrReplaceTempView("top_ten")
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC EXPLAIN SELECT h.wthr_date, h.distinct_hotel_ids, h.average_temperature_in_c, h.max_temperature_in_c, h.min_temperature_in_c, t.city FROM top_ten_stream t JOIN hotel_data h ON t.city = h.city
-
-# COMMAND ----------
-
-# MAGIC %sql
 # MAGIC SELECT h.wthr_date, h.distinct_hotel_ids, h.average_temperature_in_c, h.max_temperature_in_c, h.min_temperature_in_c, t.city FROM top_ten_stream t JOIN hotel_data h ON t.city = h.city
 
 # COMMAND ----------
@@ -243,7 +238,3 @@ display(city_dataframes[8])
 # COMMAND ----------
 
 display(city_dataframes[9])
-
-# COMMAND ----------
-
-
