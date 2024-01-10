@@ -1,8 +1,14 @@
 # Setup azurerm as a state backend
 terraform {
   backend "azurerm" {
-  }
+	resource_group_name   = "spark-basics"
+    	storage_account_name  = "gaborsstorage"
+    	container_name        = "new"
+    	key                   = "prod.terraform.tfstate"
+	access_key 	      ="32Dmym0hdFxTYgwvHK5M2AsapmfkYrPe3JQpRXwMEhz5dHe73kyuOusVoyzXhO7dH4WraEZjenYo+AStnenrgA=="
+	}
 }
+
 
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
@@ -78,3 +84,47 @@ resource "azurerm_databricks_workspace" "bdcc" {
     env = var.ENV
   }
 }
+
+provider "databricks" {
+  host  = "https://${azurerm_databricks_workspace.bdcc.workspace_url}"
+  token = var.databricks_token
+}
+
+resource "databricks_job" "bdcc1" {
+ name = "SPARKSTREAMING_TERRAFORM"
+ 
+ new_cluster {
+ 
+ spark_version = "13.3.x-scala2.12"
+ 
+  azure_attributes {
+   first_on_demand= 1
+   availability = "ON_DEMAND_AZURE"
+   spot_bid_max_price = -1
+ }
+ 
+  node_type_id = "Standard_DS3_v2"
+  enable_elastic_disk = true 
+  
+  spark_conf= {
+        "spark.master": "local[*]"
+        "spark.databricks.cluster.profile": "singleNode"
+        "spark.driver.maxResultSize": "6g"
+    }
+    
+  custom_tags = {
+    "ResourceClass" = "SingleNode"
+  }
+
+ }
+ 
+ notebook_task{
+  notebook_path = "/Repos/cuttingedgestreaming@outlook.com/m13_sparkstreaming/notebooks/StreamingApp"
+ }
+ 
+}
+
+output "job_url"{
+ value = databricks_job.bdcc1.url
+}
+
