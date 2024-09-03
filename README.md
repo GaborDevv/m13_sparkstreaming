@@ -9,7 +9,6 @@
 ![image](https://github.com/GaborDevv/m13_sparkstreaming/assets/147967502/907b08d7-6f03-4dfe-a2b4-f4207adf0311)
 
 *Check output
-![image](https://github.com/GaborDevv/m13_sparkstreaming/assets/147967502/9c8a08ca-287b-46d3-bbe2-883e4caeb37b)
 
 
 - For table visualization I've used details view because in case of some cities there was a huge difference between temperature and the number of distinct hotels in the city which made the charts unreadable
